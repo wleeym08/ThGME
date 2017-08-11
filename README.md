@@ -10,4 +10,6 @@ The default loop time for the wave files is twice.</br>
 Fade out effect is not supported.</br></br>
 ## Download
 Dropbox:</br>
-https://www.dropbox.com/sh/7r7tknbwevgz3dn/AACfuJUVjVD5GnY6Ab_Ca6Doa?dl=0
+https://www.dropbox.com/sh/7r7tknbwevgz3dn/AACfuJUVjVD5GnY6Ab_Ca6Doa?dl=0</br></br>
+Baidu:</br>
+https://pan.baidu.com/s/1gfDxCWz
