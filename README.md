@@ -5,7 +5,7 @@ Touhou General Music Extractor for Touhou STG from TH07 to latest game</br>
 An extended version of https://github.com/winghearn/th16tr_BGM_Extractor
 ## How to Use
 Place thbgm.dat and thbgm.fmt in the same folder, run ThGME.exe.</br>
-Make sure there is enough space on your machine.</br>
+Make sure the DAT and FMT are from the same game!</br>
 The default loop time for the wave files is twice.</br>
 Fade out effect is not supported.</br></br>
 ## Download
