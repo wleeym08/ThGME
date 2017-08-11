@@ -45,6 +45,7 @@ int extract() {
     data = fopen("thbgm.dat", "rb");
     if (!data) {
         fprintf(stderr, "ERROR: Could not open thbgm.dat\nPress any key to continue...");
+        while (getchar() != '\n');
         getchar();
         return 1;
     }
@@ -54,6 +55,7 @@ int extract() {
     info = fopen("thbgm.fmt", "rb");
     if (!info) {
         fprintf(stderr, "ERROR: Could not open thbgm.fmt\nPress any key to continue...");
+        while (getchar() != '\n');
         getchar();
         return 1;
     }
