@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #define LOOP 2
+#define EXTEND 20
+#define FADEOUT 10
 
 int extract(void);
 
 int main() {
     int option;
 
-    printf("+-------------------------------------------------+\n"
-        "|  Touhou General Music Extractor (ThGME) v0.0.1  |\n"
-        "|                  By winghearn                   |\n"
-        "+-------------------------------------------------+\n\n"
+    printf("+------------------------------------------------+\n"
+        "|  Touhou General Music Extractor (ThGME) v0.10  |\n"
+        "|                  By winghearn                  |\n"
+        "+------------------------------------------------+\n\n"
         "Enter 1 to start, any other keys to quit: ");
 
     scanf("%d", &option);
@@ -30,15 +33,19 @@ int extract() {
     FILE* info = NULL;
     FILE* file = NULL;
     char* fileName = (char*)malloc(16 * sizeof(char));
-    char* temp = (char*)malloc(sizeof(char));
-    long introOffset;
-    long introSize;
-    long loopOffset;
-    long loopSize;
-    long totalSize;
-    long dataSize;
-    long fileSize;
-    long infoSize;
+    unsigned int introOffset;
+    unsigned int introSize;
+    unsigned int loopOffset;
+    unsigned int loopSize;
+    unsigned int totalSize;
+    unsigned int dataSize;
+    unsigned int fileSize;
+    unsigned int infoSize;
+    double volume;
+    int extendSample = EXTEND * 44100 * 2;
+    int fadeoutSample = FADEOUT * 44100 * 2;
+    int fadeoutCount;
+    short sample;
 
     printf("\nStarting...\n\n");
 
@@ -89,16 +96,37 @@ int extract() {
         fwrite("data\0\0\0\0", 1, 4, file);
 
         fseek(data, introOffset, SEEK_SET);  // Intro
-        for (long i = 0; i < introSize; i++) {
-            fread(temp, 1, 1, data);
-            fwrite(temp, 1, 1, file);
+        for (unsigned int i = 0; i < introSize / 2; i++) {
+            fread(&sample, 2, 1, data);
+            fwrite(&sample, 2, 1, file);
         }
 
-        for (int i = 0; i < LOOP; i++) {  // Loop
+        for (unsigned int i = 0; i < LOOP; i++) {  // Loop
             fseek(data, loopOffset, SEEK_SET);
-            for (long i = 0; i < loopSize; i++) {
-                fread(temp, 1, 1, data);
-                fwrite(temp, 1, 1, file);
+            for (long i = 0; i < loopSize / 2; i++) {
+                fread(&sample, 2, 1, data);
+                fwrite(&sample, 2, 1, file);
+            }
+        }
+
+        fseek(data, loopOffset, SEEK_SET);  // Extend
+        for (unsigned int i = 0; i < extendSample; i++) {
+            fread(&sample, 2, 1, data);
+            fwrite(&sample, 2, 1, file);
+        }
+
+        fadeoutCount = 0;
+        volume = 1.0;
+        
+        for (unsigned int i = 0; i < fadeoutSample; i++) {  // Fade out
+            fread(&sample, 2, 1, data);
+            sample = (int)round(sample * volume);
+            fwrite(&sample, 2, 1, file);
+            fadeoutCount++;
+            if (fadeoutCount == fadeoutSample / 1000) {
+                if (volume > 0.0) 
+                    volume -= 0.001;
+                fadeoutCount = 0;
             }
         }
 
@@ -106,7 +134,7 @@ int extract() {
 
         file = fopen(fileName, "rb+");
         fseek(file, 0x28, SEEK_SET);
-        dataSize = introSize + LOOP * loopSize;
+        dataSize = introSize + LOOP * loopSize + extendSample * 2 + fadeoutSample * 2;
         fwrite(&dataSize, 4, 1, file);  // Data size
         fseek(file, 0x04, SEEK_SET);
         fileSize = dataSize + 36;  // Total file size - 8 bytes
@@ -125,7 +153,6 @@ int extract() {
     getchar();
 
     free(fileName);
-    free(temp);
 
     return 0;
 }
